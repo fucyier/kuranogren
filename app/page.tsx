@@ -1,65 +1,84 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import "./home.css";
+
+function readCompletedLessons(key: string) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(saved) ? saved.length : 0;
+  } catch {
+    return 0;
+  }
+}
 
 export default function Home() {
+  const [elifbaCompleted, setElifbaCompleted] = useState(0);
+  const [tecvidCompleted, setTecvidCompleted] = useState(0);
+
+  useEffect(() => {
+    setElifbaCompleted(readCompletedLessons("elifba-30-progress"));
+    setTecvidCompleted(readCompletedLessons("tecvid-10-progress"));
+  }, []);
+
+  const elifbaProgress = Math.round((elifbaCompleted / 30) * 100);
+  const tecvidProgress = Math.round((tecvidCompleted / 10) * 100);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main>
+      <header>
+        <a className="brand" href="#ana"><span>ق</span><b>Kur&apos;an Öğren</b></a>
+        <nav>
+          <a href="/elifba">Elifba Dersi</a>
+          <a href="/tecvid">Tecvid Dersi</a>
+          <a href="/namaz-sureleri">Namaz Sureleri</a>
+          <a href="#ilerleme">İlerlemem</a>
+        </nav>
+        <button className="user" aria-label="Profil">N</button>
+      </header>
+
+      <section className="hero" id="ana">
+        <div className="hero-copy">
+          <span className="eyebrow">KUR&apos;AN YOLCULUĞUN BAŞLIYOR</span>
+          <h1>Oku, dinle,<br/><em>kalbine yerleştir.</em></h1>
+          <p>Elifba&apos;dan tecvide; adım adım, doğru telaffuzla ve kendi hızında öğren.</p>
+          <div className="actions">
+            <a className="primary" href="/elifba">Elifba Dersi <b>→</b></a>
+            <a className="text-btn course-link" href="/tecvid">Tecvid Dersi <b>→</b></a>
+          </div>
+          <div className="hero-stats">
+            <b>30</b><span>Elifba dersi</span><i></i><b>10</b><span>Tecvid dersi seni bekliyor</span>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="hero-visual">
+          <div className="ornament">۞</div>
+          <div className="arch"><span>اقْرَأْ</span><small>Rabb&apos;inin adıyla oku</small></div>
+          <div className="leaf l1">❋</div><div className="leaf l2">✦</div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="dashboard" id="ilerleme">
+        <div className="dashboard-title">
+          <span>ÖĞRENME İLERLEMEN</span>
+          <strong>Kaldığın yerden devam et.</strong>
+        </div>
+        <div className="lesson-progress">
+          <div className="ring" style={{"--p": `${elifbaProgress}%`} as React.CSSProperties}><b>{elifbaProgress}%</b></div>
+          <p><b>{elifbaCompleted} / 30 ders tamamlandı</b><br/><small>Elifba Programı</small></p>
+          <a href="/elifba">Devam et →</a>
+        </div>
+        <div className="lesson-progress tecvid-progress">
+          <div className="ring" style={{"--p": `${tecvidProgress}%`} as React.CSSProperties}><b>{tecvidProgress}%</b></div>
+          <p><b>{tecvidCompleted} / 10 ders tamamlandı</b><br/><small>Tecvid Programı</small></p>
+          <a href="/tecvid">Devam et →</a>
+        </div>
+      </section>
+
+      <footer className="home-footer">
+        <a className="brand" href="#ana"><span>ق</span><b>Kur&apos;an Öğren</b></a>
+        <p>Her gün biraz daha yakın.</p>
+        <div><a href="/elifba">Elifba Dersi</a><a href="/tecvid">Tecvid Dersi</a><a href="/namaz-sureleri">Namaz Sureleri</a></div>
+      </footer>
+    </main>
   );
 }

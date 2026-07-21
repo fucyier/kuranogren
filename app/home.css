@@ -1,0 +1,80 @@
+.course-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.course-link:hover {
+  color: var(--clay);
+}
+
+.dashboard .lesson-progress {
+  min-width: 0;
+}
+
+.dashboard .lesson-progress > a {
+  margin-left: auto;
+  color: var(--clay);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dashboard .tecvid-progress {
+  border-left: 1px solid var(--line);
+  padding-left: 28px;
+}
+
+.dashboard .tecvid-progress .ring {
+  background: conic-gradient(#255f8d var(--p), #edece7 0);
+}
+
+.home-footer {
+  margin-top: 80px;
+}
+
+@media (max-width: 900px) {
+  .dashboard {
+    align-items: stretch;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 1fr 1fr;
+    padding: 22px;
+  }
+
+  .dashboard-title {
+    grid-column: 1 / -1;
+  }
+
+  .dashboard .lesson-progress {
+    background: #faf8f3;
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .dashboard .tecvid-progress {
+    border-left: 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-title {
+    display: grid;
+  }
+
+  .dashboard .lesson-progress {
+    justify-content: flex-start;
+  }
+
+  .dashboard .lesson-progress p {
+    display: block;
+  }
+
+  .home-footer {
+    margin-top: 52px;
+  }
+}
