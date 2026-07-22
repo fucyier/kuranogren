@@ -14,6 +14,7 @@ import { elifbaLessons } from "@/src/data/elifba-lessons";
 import { getElifbaSources, getElifbaTheory } from "@/src/data/elifba-theory";
 import letters from "@/src/data/elifba.json";
 import AcademyHeader from "@/app/_components/AcademyHeader";
+import { logActivity, scheduleReview } from "@/src/lib/progress";
 
 type Letter = (typeof letters)[number];
 const nonJoining = new Set(["elif", "dal", "zel", "ra", "ze", "vav"]);
@@ -95,6 +96,8 @@ export default function ElifbaLessonScreen({ lesson }: { lesson: ElifbaLesson })
   function finishLesson() {
     const updated=completed.includes(lesson.day)?completed:[...completed,lesson.day].sort((a,b)=>a-b);
     setCompleted(updated);localStorage.setItem("elifba-30-progress",JSON.stringify(updated));setMessage(`${lesson.day}. gün tamamlandı. Tebrikler!`);
+    logActivity();
+    scheduleReview(`elifba-${lesson.day}`,"elifba",lesson.shortTitle,`/${lesson.slug}`);
   }
 
   return <main className="min-h-screen bg-[#fbf7ef] text-[#163f3a]">

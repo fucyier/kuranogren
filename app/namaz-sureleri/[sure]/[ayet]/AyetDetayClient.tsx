@@ -9,13 +9,14 @@ import PauseRounded from "@mui/icons-material/PauseRounded";
 import PlayArrowRounded from "@mui/icons-material/PlayArrowRounded";
 import AcademyHeader from "@/app/_components/AcademyHeader";
 import {ayetAudioPath,sureSourceUrl,type NamazAyeti,type NamazSuresi} from "@/src/data/namaz-sureleri";
+import {logActivity,scheduleReview} from "@/src/lib/progress";
 
 const colors=["#f6cf88","#b9e3d4","#ffc2a5","#c8d9ff","#f4b9cf"];
 export default function AyetDetayClient({sure,ayah}:{sure:NamazSuresi;ayah:NamazAyeti}){
  const audio=useRef<HTMLAudioElement>(null);const [playing,setPlaying]=useState(false);const [done,setDone]=useState(false);const previous=sure.ayahs[ayah.number-2];const next=sure.ayahs[ayah.number];const key=`${sure.slug}-${ayah.number}`;
  useEffect(()=>{try{setDone(JSON.parse(localStorage.getItem("namaz-sureleri-progress")||"[]").includes(key))}catch{}},[key]);
  function toggle(){const player=audio.current;if(!player)return;if(playing){player.pause();setPlaying(false)}else{player.play().then(()=>setPlaying(true)).catch(()=>setPlaying(false))}player.onended=()=>setPlaying(false)}
- function finish(){let values:string[]=[];try{values=JSON.parse(localStorage.getItem("namaz-sureleri-progress")||"[]")}catch{}if(!values.includes(key))values.push(key);localStorage.setItem("namaz-sureleri-progress",JSON.stringify(values));setDone(true)}
+ function finish(){let values:string[]=[];try{values=JSON.parse(localStorage.getItem("namaz-sureleri-progress")||"[]")}catch{}if(!values.includes(key))values.push(key);localStorage.setItem("namaz-sureleri-progress",JSON.stringify(values));setDone(true);logActivity();scheduleReview(key,"namaz",`${sure.name}, ${ayah.number}. ayet`,`/namaz-sureleri/${sure.slug}/${ayah.number}`)}
  const theory=[ayah.explanation,...sure.context,`Bu ayeti çalışırken önce kârîyi dikkatle dinle, ardından kelime gruplarını durak yerlerine dikkat ederek üç kez tekrar et. Kısa anlamı kendi cümlenle anlatman, Arapça metin ile mesaj arasındaki bağı güçlendirir. Açıklamalar eğitim amacıyla hazırlanmış özgün özetlerdir; farklı yorumları karşılaştırmak için aşağıdaki kaynakçaya başvurabilirsin.`];
  return <main className="min-h-screen bg-[#f7f3ec] text-[#183f3a]"><audio ref={audio} src={ayetAudioPath(sure,ayah.number)} preload="auto"/><AcademyHeader title="Namaz Sureleri"/>
   <section className="mx-auto max-w-6xl space-y-6 px-5 py-8 sm:px-8"><Link href={`/namaz-sureleri/${sure.slug}`} className="inline-flex items-center gap-2 font-extrabold text-[#244a70]"><ArrowBackRounded/> {sure.name} ayetleri</Link>

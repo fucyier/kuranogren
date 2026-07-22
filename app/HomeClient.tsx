@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import "./home.css";
+import { computeStreak } from "@/src/lib/progress";
 
 function readCompletedLessons(key: string) {
   try {
@@ -12,13 +13,24 @@ function readCompletedLessons(key: string) {
   }
 }
 
+const toolLinks = [
+  { href: "/pratik", title: "Pratik Testleri", desc: "Harf, tecvid ve sure bilgini çoktan seçmeli sorularla ölç.", icon: "✅" },
+  { href: "/tekrar", title: "Tekrar Zamanı", desc: "Aralıklı tekrarla öğrendiklerini unutma.", icon: "🔁" },
+  { href: "/yazi-pratigi", title: "Yazı Pratiği", desc: "Harfleri parmağınla veya fareyle iz sürerek yaz.", icon: "✍️" },
+  { href: "/mahrec-haritasi", title: "Mahreç Haritası", desc: "Harflerin ağızda çıktığı yeri interaktif haritada gör.", icon: "🗺️" },
+  { href: "/tefsir", title: "Tefsir", desc: "Namaz surelerinin iniş sebebini ve günlük hayat bağlantısını oku.", icon: "📖" },
+  { href: "/basarilar", title: "Başarılarım", desc: "Günlük serini ve kazandığın rozetleri gör.", icon: "🏆" },
+];
+
 export default function HomeClient() {
   const [elifbaCompleted, setElifbaCompleted] = useState(0);
   const [tecvidCompleted, setTecvidCompleted] = useState(0);
+  const [streak, setStreak] = useState(0);
 
   useEffect(() => {
     setElifbaCompleted(readCompletedLessons("elifba-30-progress"));
     setTecvidCompleted(readCompletedLessons("tecvid-10-progress"));
+    setStreak(computeStreak());
   }, []);
 
   const elifbaProgress = Math.round((elifbaCompleted / 30) * 100);
@@ -32,9 +44,10 @@ export default function HomeClient() {
           <a href="/elifba">Elifba Dersi</a>
           <a href="/tecvid">Tecvid Dersi</a>
           <a href="/namaz-sureleri">Namaz Sureleri</a>
+          <a href="/pratik">Pratik</a>
           <a href="#ilerleme">İlerlemem</a>
         </nav>
-        <button className="user" aria-label="Profil">N</button>
+        <a className="user" aria-label="Başarılarım" href="/basarilar" style={{display:"grid",placeItems:"center",textDecoration:"none"}}>{streak>0?`🔥${streak}`:"N"}</a>
       </header>
 
       <section className="hero" id="ana">
@@ -74,10 +87,26 @@ export default function HomeClient() {
         </div>
       </section>
 
+      <section className="tools-panel" id="araclar">
+        <div className="dashboard-title">
+          <span>YENİ ARAÇLAR</span>
+          <strong>Öğrendiğini pekiştirecek ekranlar.</strong>
+        </div>
+        <div className="tools-grid">
+          {toolLinks.map((tool) => (
+            <a key={tool.href} href={tool.href}>
+              <span className="tool-icon">{tool.icon}</span>
+              <b>{tool.title}</b>
+              <small>{tool.desc}</small>
+            </a>
+          ))}
+        </div>
+      </section>
+
       <footer className="home-footer">
         <a className="brand" href="#ana"><span>ق</span><b>Kur&apos;an Öğren</b></a>
         <p>Her gün biraz daha yakın.</p>
-        <div><a href="/elifba">Elifba Dersi</a><a href="/tecvid">Tecvid Dersi</a><a href="/namaz-sureleri">Namaz Sureleri</a></div>
+        <div><a href="/elifba">Elifba Dersi</a><a href="/tecvid">Tecvid Dersi</a><a href="/namaz-sureleri">Namaz Sureleri</a><a href="/pratik">Pratik</a><a href="/tekrar">Tekrar Zamanı</a><a href="/basarilar">Başarılarım</a></div>
       </footer>
     </main>
   );
