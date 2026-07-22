@@ -14,6 +14,11 @@ const finalSources: LessonSource[] = [
   { title:"Fâtiha Suresi Tefsiri", publisher:"Diyanet İşleri Başkanlığı – Kur’an Yolu", url:"https://kuran.diyanet.gov.tr/tefsir/sure/1-fatiha-suresi" },
 ];
 
+const soundSources: LessonSource[] = [
+  { title:"Harflerin Sesleri", publisher:"Diyanet İşleri Başkanlığı Elifba", url:"https://kuran.diyanet.gov.tr/elifba/#/elifba/harfler/sesleri" },
+  { title:"Elif-Bâ Öğretimi Etkinlik Örnekleri", publisher:"Diyanet İşleri Başkanlığı", url:"https://egitimhizmetleri.diyanet.gov.tr/Documents/Elif-Ba%CC%82%20O%CC%88g%CC%86retimi%20Etkinlik%20O%CC%88rnekleri.pdf" },
+];
+
 const theories = {
   letters: [
     "Kur’an yazısının temeli, her biri kendine özgü biçime ve çıkış yerine sahip harflerdir. Türkçedeki alfabe bilgisinden farklı olarak burada yalnız şekli tanımak yeterli değildir; harfin adı, sesi, noktalarının yeri ve kelime içindeki biçimi birlikte öğrenilir. Sağdan sola takip edilen yazı yönü ilk günlerde bilinçli olarak uygulanmalı, göz bir sonraki harfe soldan değil sağdan geçmeye alıştırılmalıdır.",
@@ -26,6 +31,12 @@ const theories = {
     "Boğaz harfleri boğazın dip, orta ve ağıza yakın bölümlerinden çıkar. Dil harflerinde dil kökü, ortası, kenarı veya ucu görev alır. Dudak harflerinde iki dudağın kapanması, yuvarlanması ya da alt dudağın üst dişlere yaklaşması görülür. Mahreç grupları, ezberlenecek kuru bir liste değil, doğru sesi üretmeye yardımcı olan bir beden haritasıdır.",
     "Kalınlık ve incelik harfin temel ses rengini etkiler. Hı, sad, dad, tı, zı, ğayn ve kaf genel olarak kalın okunur. Peltek se, zel ve zı seslerinde dil ucu üst ön dişlere yaklaşır. Harfin kalın okunması sesi gereksiz biçimde bağırmak, peltek okunması da dili aşırı dışarı çıkarmak anlamına gelmez; ölçülü bir taklit gerekir.",
     "Mahreç çalışması aynayla, yavaş tekrarlarla ve karşılaştırmalı dinlemeyle yapılmalıdır. Sin-sad, te-tı, dal-dad, he-ha ve kef-kaf gibi çiftleri arka arkaya okumak farkı duyulur hâle getirir. Ses kaydı almak yararlı olsa da nihai doğrulama için ehil bir öğreticinin geri bildirimi önemlidir."
+  ],
+  sounds: [
+    "Kur’an harfleri ses özelliklerine göre çalışıldığında birbirine benzeyen harfleri ayırmak kolaylaşır. Hı, sad, dad, tı, zı, ğayn ve kaf harfleri temel olarak kalın seslidir. Bu harfleri söylerken ağız içindeki ses alanı genişler ve ses daha dolgun duyulur; ancak kalın okumak bağırmak veya sesi gereksiz uzatmak değildir.",
+    "İnce sesli harflerde dil ve ağız gereksiz biçimde geriye çekilmez. Sin-sad, te-tı, dal-dad ve kef-kaf çiftlerinde ilk harf daha ince, ikinci harf daha kalın duyulur. Çiftleri art arda dinlemek, yalnız harfin şeklini değil ses rengini de hafızaya yerleştirir.",
+    "Se, zel ve zı peltek okunan üç harftir. Dil ucu üst ön dişlerin ucuna hafifçe yaklaşır veya çok az görünür; hava dil ile diş arasından kontrollü biçimde çıkar. Zı harfi hem peltek hem kalın özellik taşır. Dili fazla dışarı çıkarmak ya da sesi Türkçedeki s ve z sesine çevirmek doğru değildir.",
+    "Çalışmada önce harfi yalnız dinle, sonra ağız hareketini fark ederek üç kez tekrar et. Ardından ince-kalın karşılaştırma çiftlerini sırayla oku. Harflerin adını söylemenin yanında gerçek Arapça sesini taklit etmek esastır; Türkçe benzetmeler yalnız farkı hatırlatan geçici ipuçlarıdır."
   ],
   vowels: [
     "Arap harfleri temel biçimleriyle çoğunlukla sessiz bir iskelet oluşturur. Üstün, esre ve ötre adı verilen harekeler, harfin hangi kısa sesle okunacağını gösterir. Üstün harfin üstünde kısa ‘a/e’, esre altında kısa ‘i’, ötre ise üstünde kısa ‘u/ü’ sesi verir. Bu sesler tek hareke süresinde okunur ve med harfi bulunmadıkça uzatılmaz.",
@@ -78,11 +89,11 @@ const theories = {
 };
 
 export function getElifbaTheory(day:number) {
-  if(day<=3)return theories.letters;if(day===4)return theories.makhraj;if(day<=13)return theories.vowels;
+  if(day<=3)return theories.letters;if(day===4)return theories.sounds;if(day<=13)return theories.vowels;
   if(day<=16)return theories.sukun;if(day<=20)return theories.madd;if(day<=23)return theories.shadda;
   if(day<=26)return theories.tanwin;if(day<=28)return theories.special;if(day===29)return theories.waqf;return theories.review;
 }
 
 export function getElifbaSources(day:number) {
-  return [...commonSources,...(day>=5?signSources:[]),...(day===30?finalSources:[])];
+  return [...commonSources,...(day===4?soundSources:[]),...(day>=5?signSources:[]),...(day===30?finalSources:[])];
 }
