@@ -116,12 +116,12 @@ export default function QuizScreen({ topicSlug }: { topicSlug: string }) {
                     key={option}
                     onClick={() => choose(optionIndex)}
                     disabled={selected !== null}
-                    className={`rounded-2xl border-2 px-5 py-4 text-left text-sm font-bold leading-6 transition ${
+                    className={`rounded-2xl border-2 px-5 py-4 text-left text-sm font-bold leading-6 transition-all duration-200 ease-out active:scale-[0.98] ${
                       showState && isCorrect
                         ? "border-emerald-400 bg-emerald-50 text-emerald-900"
                         : showState && isSelected
                         ? "border-red-300 bg-red-50 text-red-800"
-                        : "border-blue-950/10 bg-white hover:border-blue-950/25"
+                        : "border-blue-950/10 bg-white hover:-translate-y-0.5 hover:border-blue-950/25 hover:shadow-md"
                     }`}
                   >
                     {option}

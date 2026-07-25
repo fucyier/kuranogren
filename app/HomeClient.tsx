@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import LocalFireDepartmentRounded from "@mui/icons-material/LocalFireDepartmentRounded";
 import "./home.css";
 import { computeStreak } from "@/src/lib/progress";
 
@@ -39,7 +40,7 @@ export default function HomeClient() {
   return (
     <main>
       <header>
-        <a className="brand" href="#ana"><span>ق</span><b>Kur&apos;an Öğren</b></a>
+        <a className="brand" href="#ana"><span>و</span><b>Kur&apos;an Öğren</b></a>
         <nav>
           <a href="/elifba">Elifba Dersi</a>
           <a href="/tecvid">Tecvid Dersi</a>
@@ -47,7 +48,7 @@ export default function HomeClient() {
           <a href="/pratik">Pratik</a>
           <a href="#ilerleme">İlerlemem</a>
         </nav>
-        <a className="user" aria-label="Başarılarım" href="/basarilar" style={{display:"grid",placeItems:"center",textDecoration:"none"}}>{streak>0?`🔥${streak}`:"N"}</a>
+        <a className="user transition hover:opacity-90" aria-label="Başarılarım ve Aktivite" href="/basarilar" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"4px",textDecoration:"none",width: streak>0?"auto":"40px",minWidth:"40px",height:"40px",padding:streak>0?"0 14px":"0",borderRadius:"20px"}}><LocalFireDepartmentRounded sx={{color:"#c2410c",fontSize:24}}/>{streak>0 && <span style={{fontSize:"15px",fontWeight:900}}>{streak}</span>}</a>
       </header>
 
       <section className="hero" id="ana">
@@ -57,7 +58,7 @@ export default function HomeClient() {
           <p>Elifba&apos;dan tecvide; adım adım, doğru telaffuzla ve kendi hızında öğren.</p>
           <div className="actions">
             <a className="primary" href="/elifba">Elifba Dersi <b>→</b></a>
-            <a className="text-btn course-link" href="/tecvid">Tecvid Dersi <b>→</b></a>
+            <a className="primary" href="/tecvid">Tecvid Dersi <b>→</b></a>
           </div>
           <div className="hero-stats">
             <b>30</b><span>Elifba dersi</span><i></i><b>10</b><span>Tecvid dersi seni bekliyor</span>
@@ -104,7 +105,7 @@ export default function HomeClient() {
       </section>
 
       <footer className="home-footer">
-        <a className="brand" href="#ana"><span>ق</span><b>Kur&apos;an Öğren</b></a>
+        <a className="brand" href="#ana"><span>و</span><b>Kur&apos;an Öğren</b></a>
         <p>Her gün biraz daha yakın.</p>
         <div><a href="/elifba">Elifba Dersi</a><a href="/tecvid">Tecvid Dersi</a><a href="/namaz-sureleri">Namaz Sureleri</a><a href="/pratik">Pratik</a><a href="/tekrar">Tekrar Zamanı</a><a href="/basarilar">Başarılarım</a></div>
       </footer>

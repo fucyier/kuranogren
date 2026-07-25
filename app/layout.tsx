@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ScrollToTopFab from "@/app/_components/ScrollToTopFab";
 import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/seo";
 import "./globals.css";
 import "./child.css";
@@ -10,6 +11,11 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: DEFAULT_DESCRIPTION,
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   applicationName: SITE_NAME,
   authors: [{ name: SITE_NAME, url: SITE_URL }],
   creator: SITE_NAME,
@@ -48,6 +54,7 @@ export default function RootLayout({
     <html lang="tr">
       <body>
         {children}
+        <ScrollToTopFab />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteStructuredData).replace(/</g, "\\u003c") }}

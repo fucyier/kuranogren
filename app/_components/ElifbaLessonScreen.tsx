@@ -6,7 +6,6 @@ import { Alert, Button, Card, CardActionArea, Chip, Dialog, DialogActions, Dialo
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
 import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
 import CheckCircleRounded from "@mui/icons-material/CheckCircleRounded";
-import HomeRounded from "@mui/icons-material/HomeRounded";
 import MenuBookRounded from "@mui/icons-material/MenuBookRounded";
 import VolumeUpRounded from "@mui/icons-material/VolumeUpRounded";
 import type { ElifbaLesson } from "@/src/data/elifba-lessons";
@@ -73,9 +72,12 @@ export default function ElifbaLessonScreen({ lesson }: { lesson: ElifbaLesson })
     const player=audioRef.current;
     if(!player)return;
     player.pause();
-    player.src=letter.audio;
     player.currentTime=0;
-    player.play().then(()=>setMessage(`${letter.name} harfinin doğru telaffuzu oynatılıyor.`)).catch(()=>speak(letter.pronunciation,letter.name));
+    let fellBack=false;
+    const fallback=()=>{if(fellBack)return;fellBack=true;speak(letter.pronunciation,letter.name);};
+    player.onerror=fallback;
+    player.src=letter.audio;
+    player.play().then(()=>setMessage(`${letter.name} harfinin doğru telaffuzu oynatılıyor.`)).catch(fallback);
   }
 
   function selectLetter(letter:Letter) {
@@ -83,14 +85,17 @@ export default function ElifbaLessonScreen({ lesson }: { lesson: ElifbaLesson })
     if(lesson.day===3)setLetterDialogOpen(true);
   }
 
-  function playLessonAudio(kind:"ornek"|"pratik",index:number,fallbackText:string) {
+  function playLessonAudio(kind:"ornek"|"pratik"|"harf",index:number,fallbackText:string) {
     const player=audioRef.current;
     if(!player)return;
     player.pause();
     player.currentTime=0;
     player.playbackRate=.85;
+    let fellBack=false;
+    const fallback=()=>{if(fellBack)return;fellBack=true;speak(fallbackText);};
+    player.onerror=fallback;
     player.src=`/audio/elifba/dersler/gun-${String(lesson.day).padStart(2,"0")}/${kind}-${String(index+1).padStart(2,"0")}.mp3`;
-    player.play().then(()=>setMessage(`${kind==="ornek"?"Ders örneği":"Pratik örneği"} oynatılıyor.`)).catch(()=>speak(fallbackText));
+    player.play().then(()=>setMessage(`${kind==="ornek"?"Ders örneği":kind==="pratik"?"Pratik örneği":"Harf okunuşu"} oynatılıyor.`)).catch(fallback);
   }
 
   function finishLesson() {
@@ -123,7 +128,7 @@ export default function ElifbaLessonScreen({ lesson }: { lesson: ElifbaLesson })
         <Button onClick={()=>setLetterDialogOpen(false)} variant="contained" sx={{borderRadius:3,bgcolor:"#174f47",fontWeight:800,"&:hover":{bgcolor:"#0f3f38"}}}>Kapat</Button>
       </DialogActions>
     </Dialog>
-    <AcademyHeader title="30 Günlük Elifba Programı"/>
+    <AcademyHeader title="30 Günlük Elifba Programı" activeLesson={`Gün ${String(lesson.day).padStart(2, "0")} · ${lesson.shortTitle}`}/>
 
     <div className="mx-auto grid max-w-[1450px] gap-7 px-4 py-7 lg:grid-cols-[320px_minmax(0,1fr)] lg:px-7">
       <aside className="lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)]">
@@ -143,19 +148,19 @@ export default function ElifbaLessonScreen({ lesson }: { lesson: ElifbaLesson })
           </div>
         </div>
 
-        <Alert severity="info" icon={false} className="!rounded-2xl !bg-sky-50 !px-5 !py-3 !text-base !font-semibold !text-sky-950">👂 {lesson.instruction}</Alert>
+        {lesson.mode!=="practice_only" && <Alert severity="info" icon={false} className="!rounded-2xl !bg-sky-50 !px-5 !py-3 !text-base !font-semibold !text-sky-950">👂 {lesson.instruction}</Alert>}
 
-        <article className="rounded-3xl border border-emerald-900/10 bg-white p-6 shadow-sm sm:p-8">
+        {lesson.mode!=="practice_only" && <article className="rounded-3xl border border-emerald-900/10 bg-white p-6 shadow-sm sm:p-8">
           <div className="max-w-4xl"><p className="text-xs font-black tracking-[.18em] text-orange-700">AYRINTILI TEORİ</p><h2 className="mt-2 font-serif text-3xl font-bold sm:text-4xl">Konuyu anlayalım</h2><p className="mt-3 text-sm leading-6 text-emerald-900/55">Bu bölüm güvenilir öğretim kaynakları esas alınarak özgün biçimde hazırlanmış bir açıklamadır; kaynak metinlerden doğrudan uzun alıntı yapılmamıştır.</p></div>
           <div className="mt-7 grid gap-x-9 gap-y-5 xl:grid-cols-2">{theory.map((paragraph,index)=><div key={index} className="flex gap-4"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-50 text-sm font-black text-emerald-800">{index+1}</span><p className="text-[16px] leading-8 text-emerald-950/80">{paragraph}</p></div>)}</div>
           <div className="mt-8 border-t border-emerald-900/10 pt-4"><p className="text-[11px] font-black uppercase tracking-wider text-emerald-900/50">Kaynakça</p><div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">{sources.map(source=><a key={source.url} href={source.url} target="_blank" rel="noreferrer" className="text-xs font-semibold text-emerald-700 underline decoration-emerald-300 underline-offset-4 hover:text-orange-700">{source.publisher}: {source.title}</a>)}</div></div>
-        </article>
+        </article>}
 
-        <div className="space-y-5">
+        {lesson.mode!=="practice_only" && <div className="space-y-5">
           <div className="rounded-3xl bg-[#f1dfc7] p-5 sm:p-7"><div className="flex flex-wrap items-end justify-between gap-2"><div><p className="text-xs font-black tracking-[.16em] text-orange-800">AKLINDA KALSIN</p><h2 className="mt-1 font-serif text-2xl font-bold sm:text-3xl">Derse başlamadan önce</h2></div><span className="rounded-full bg-white/70 px-4 py-2 text-xs font-extrabold text-orange-800">{lesson.points.length} önemli ipucu</span></div><ul className="mt-5 grid gap-3 md:grid-cols-3">{lesson.points.map((point,index)=><li key={point} className="flex min-h-24 gap-4 rounded-2xl bg-white/70 p-5 text-base font-semibold leading-7 ring-1 ring-orange-900/5"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-sm font-black text-orange-700 shadow-sm">{index+1}</span><span>{point}</span></li>)}</ul></div>
           <div className="rounded-3xl border border-emerald-900/10 bg-white p-5 shadow-sm sm:p-7">
             <div className="mb-5 flex items-center justify-between"><div><p className="text-xs font-black tracking-[.18em] text-orange-700">DİNLE VE TEKRAR ET</p><h2 className="mt-1 font-serif text-3xl font-bold">Ders çalışması</h2></div><VolumeUpRounded className="text-emerald-700" fontSize="large"/></div>
-            {lesson.mode==="letters" && <div className={`grid grid-cols-2 gap-3 sm:grid-cols-3 ${lesson.day===3?"xl:grid-cols-3":"xl:grid-cols-4"}`}>{letters.map(letter=><Card key={letter.id} elevation={selectedLetter.id===letter.id?5:0} className={`!rounded-2xl ring-2 ${selectedLetter.id===letter.id?"ring-orange-400":"ring-emerald-900/10"}`}><CardActionArea onClick={()=>selectLetter(letter)} className="!h-full !p-4 !text-center"><span dir="rtl" className="arabic-learning block text-7xl leading-none text-emerald-800">{letter.arabic}</span><b className="mt-2 block text-base">{letter.name}</b>{lesson.day===3&&<span className="mt-4 grid grid-cols-2 gap-2 border-t border-emerald-900/10 pt-4">{forms(letter).map((form,index)=><span key={index} className="rounded-xl bg-emerald-50/70 px-1 py-2"><small className="block text-[11px] font-extrabold text-emerald-900/55">{["Yalın","Başta","Ortada","Sonda"][index]}</small><span dir="rtl" className="arabic-learning mt-1 block text-3xl leading-none text-emerald-900">{form}</span></span>)}</span>}<small className="mt-3 block font-bold text-orange-700">{lesson.day===3?"Büyüt ve dinle":"▶ Dinle"}</small></CardActionArea></Card>)}</div>}
+            {lesson.mode==="letters" && <div dir="rtl" className={`grid grid-cols-2 gap-3 sm:grid-cols-3 ${lesson.day===3?"xl:grid-cols-3":"xl:grid-cols-4"}`}>{letters.map(letter=><Card key={letter.id} elevation={selectedLetter.id===letter.id?5:0} className={`!rounded-2xl ring-2 ${selectedLetter.id===letter.id?"ring-orange-400":"ring-emerald-900/10"}`}><CardActionArea onClick={()=>selectLetter(letter)} className="!h-full !p-4 !text-center"><span dir="rtl" className="arabic-learning block text-7xl leading-none text-emerald-800">{letter.arabic}</span><b className="mt-2 block text-base">{letter.name}</b>{lesson.day===3&&<span className="mt-4 grid grid-cols-2 gap-2 border-t border-emerald-900/10 pt-4">{forms(letter).map((form,index)=><span key={index} className="rounded-xl bg-emerald-50/70 px-1 py-2"><small className="block text-[11px] font-extrabold text-emerald-900/55">{["Yalın","Başta","Ortada","Sonda"][index]}</small><span dir="rtl" className="arabic-learning mt-1 block text-3xl leading-none text-emerald-900">{form}</span></span>)}</span>}<small className="mt-3 block font-bold text-orange-700">{lesson.day===3?"Büyüt ve dinle":"▶ Dinle"}</small></CardActionArea></Card>)}</div>}
             {lesson.mode==="makhraj" && lesson.day!==4 && <div className="space-y-4">{makhrajGroups.map(group=><div key={group.title} className="rounded-2xl bg-stone-50 p-4 ring-1 ring-stone-200"><div className="mb-3"><b className="text-lg">{group.title}</b><p className="text-sm text-emerald-900/60">{group.subtitle}</p></div><div className="flex flex-wrap gap-2">{group.ids.map(id=>{const letter=letters.find(item=>item.id===id);return letter?<Button key={id} onClick={()=>playLetter(letter)} startIcon={<VolumeUpRounded/>} variant="outlined" sx={{borderRadius:3,borderColor:"#9bb8af",color:"#174f47",fontSize:"1.35rem",fontFamily:"serif",fontWeight:700}}>{letter.arabic}</Button>:null})}</div></div>)}</div>}
             {lesson.day===4 && <div className="space-y-6">
               <div className="grid gap-3 sm:grid-cols-3">{[{no:"1",title:"Dinle",text:"Harfe dokun ve sesi dikkatle dinle."},{no:"2",title:"Fark et",text:"İnce, kalın veya peltek oluşuna bak."},{no:"3",title:"Tekrar et",text:"Aynı sesi tane tane üç kez söyle."}].map(step=><div key={step.no} className="flex gap-3 rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-100"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-800 text-sm font-black text-white">{step.no}</span><div><b className="block text-sm">{step.title}</b><p className="mt-1 text-xs leading-5 text-emerald-900/60">{step.text}</p></div></div>)}</div>
@@ -164,12 +169,33 @@ export default function ElifbaLessonScreen({ lesson }: { lesson: ElifbaLesson })
               <div className="rounded-2xl border border-violet-200 bg-violet-50 p-5"><b className="text-violet-900">Peltek okuma ipucu</b><p className="mt-2 text-sm leading-6 text-violet-950/70">ث · ذ · ظ harflerinde dil ucunu üst ön dişlere hafifçe yaklaştır. ظ aynı zamanda kalın okunur. Dili zorlamadan sesi dinle ve taklit et.</p></div>
             </div>}
             {lesson.mode==="reading" && <div className="grid gap-3 sm:grid-cols-2">{lesson.examples.map((example,index)=><button key={index} onClick={()=>playLessonAudio("ornek",index,example)} className="group flex min-h-32 items-center justify-between rounded-2xl border-2 border-emerald-900/10 bg-[#fffcf7] px-5 text-right transition hover:border-orange-400 hover:shadow-md"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-emerald-800 text-white group-hover:bg-orange-600">▶</span><span dir="rtl" className="font-serif text-4xl leading-relaxed text-emerald-950">{example}</span></button>)}</div>}
+            {lesson.mode==="letters_with_vowel" && <div dir="rtl" className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">{lesson.examples.map((example,index)=><Card key={index} elevation={0} className="!rounded-2xl ring-2 ring-emerald-900/10 transition hover:border-orange-400 hover:shadow-md"><CardActionArea onClick={()=>playLessonAudio("harf",index,example)} className="!h-full !p-4 !text-center"><span dir="rtl" className="arabic-learning block text-7xl leading-none text-emerald-800">{example}</span><small className="mt-3 block font-bold text-orange-700">▶ Dinle</small></CardActionArea></Card>)}</div>}
           </div>
+        </div>}
+
+        {lesson.day !== 1 && lesson.practice.length > 0 && (
+          <div className="rounded-3xl border border-orange-200 bg-orange-50 p-5 sm:p-7">
+            <p className="text-xs font-black tracking-[.18em] text-orange-700">BOL PRATİK</p>
+            <h2 className="mt-2 font-serif text-3xl font-bold">Şimdi sıra sende</h2>
+            <p className="mt-2 text-emerald-900/65">Kartlara dokun, dinle ve aynı örneği üç defa sesli oku.</p>
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              {lesson.practice.map((word,index)=>
+                <Card key={index} elevation={0} className="group !rounded-2xl ring-1 ring-orange-900/10 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg hover:ring-orange-400 active:scale-95">
+                  <CardActionArea onClick={()=>playLessonAudio("pratik",index,word)} className="!flex !min-h-[132px] !flex-col !items-center !justify-center !gap-2 !p-4 !text-center sm:!min-h-[152px]">
+                    <span dir="rtl" className="arabic-learning block w-full break-words text-center leading-snug text-emerald-950 text-4xl sm:text-5xl">{word}</span>
+                    <span className="flex items-center gap-1 text-[11px] font-bold text-orange-600 opacity-0 transition-opacity duration-200 group-hover:opacity-100">▶ Dinle</span>
+                  </CardActionArea>
+                </Card>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 items-center gap-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-emerald-900/10 sm:grid-cols-3">
+          <div className="flex justify-center sm:justify-start">{previous&&<Button component={Link} href={`/${previous.slug}`} startIcon={<ArrowBackRounded/>} sx={{color:"#174f47",fontWeight:700}}>Önceki gün</Button>}</div>
+          <div className="flex justify-center"><Button onClick={finishLesson} variant="contained" endIcon={<CheckCircleRounded/>} sx={{borderRadius:3,bgcolor:"#174f47",px:3,py:1.4,fontWeight:800,"&:hover":{bgcolor:"#0f3f38"}}}>{completed.includes(lesson.day)?"Ders tamamlandı":next?"Dersi tamamla":"Programı tamamla"}</Button></div>
+          <div className="flex justify-center sm:justify-end">{next&&<Button component={Link} href={`/${next.slug}`} endIcon={<ArrowForwardRounded/>} sx={{color:"#c26732",fontWeight:800}}>Sonraki gün</Button>}</div>
         </div>
-
-        <div className="rounded-3xl border border-orange-200 bg-orange-50 p-5 sm:p-7"><p className="text-xs font-black tracking-[.18em] text-orange-700">BOL PRATİK</p><h2 className="mt-2 font-serif text-3xl font-bold">Şimdi sıra sende</h2><p className="mt-2 text-emerald-900/65">Kartlara dokun, dinle ve aynı örneği üç defa sesli oku.</p><div className="mt-5 grid gap-3 sm:grid-cols-3">{lesson.practice.map((example,index)=><button key={index} onClick={()=>playLessonAudio("pratik",index,example)} className="rounded-2xl bg-white p-5 text-center shadow-sm ring-1 ring-orange-200 transition hover:-translate-y-1 hover:shadow-md"><span dir="rtl" className="block font-serif text-3xl leading-relaxed">{example}</span><small className="mt-2 block font-extrabold text-orange-700">▶ Örneği dinle</small></button>)}</div></div>
-
-        <div className="flex flex-col items-center justify-between gap-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-emerald-900/10 sm:flex-row"><div className="flex gap-2"><Button component={Link} href="/" startIcon={<HomeRounded/>} sx={{color:"#174f47",fontWeight:700}}>Ana sayfa</Button>{previous&&<Button component={Link} href={`/${previous.slug}`} startIcon={<ArrowBackRounded/>} sx={{color:"#174f47",fontWeight:700}}>Önceki gün</Button>}</div><Button onClick={finishLesson} variant="contained" endIcon={completed.includes(lesson.day)?<CheckCircleRounded/>:<ArrowForwardRounded/>} sx={{borderRadius:3,bgcolor:"#174f47",px:3,py:1.4,fontWeight:800,"&:hover":{bgcolor:"#0f3f38"}}}>{completed.includes(lesson.day)?"Ders tamamlandı":next?"Dersi tamamla":"Programı tamamla"}</Button>{next&&<Button component={Link} href={`/${next.slug}`} endIcon={<ArrowForwardRounded/>} sx={{color:"#c26732",fontWeight:800}}>Sonraki gün</Button>}</div>
       </section>
     </div>
   </main>;

@@ -1,3 +1,8 @@
+.hero-copy .actions {
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
 .course-link {
   display: inline-flex;
   align-items: center;
