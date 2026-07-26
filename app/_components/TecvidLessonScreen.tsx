@@ -42,11 +42,12 @@ export default function TecvidLessonScreen({lesson}:{lesson:TecvidLesson}){
      </div>
     </Paper>
     <Paper elevation={0} className="!rounded-3xl !bg-[#fff7e8] !p-7 ring-1 ring-amber-200 sm:!p-9"><p className="text-xs font-black tracking-[.18em] text-amber-800">BOL PRATİK</p><h2 className="mt-2 font-serif text-4xl font-bold">Yavaş oku, üç kez tekrar et</h2>
-     <div className="mt-7 grid gap-4 sm:grid-cols-2">
+     <div dir="rtl" className="mt-7 grid gap-4 sm:grid-cols-2">
       {lesson.practice.map((sample,index)=>
-       <Card key={sample.id} elevation={0} className="!rounded-3xl !bg-white ring-1 ring-amber-200 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]">
+       <Card key={sample.id} elevation={0} className="relative !rounded-3xl !bg-white ring-1 ring-amber-200 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]">
+        <span className="pointer-events-none absolute right-2 top-2 z-10 grid h-6 w-6 place-items-center rounded-full text-[11px] font-black text-white shadow-sm" style={{backgroundColor:lesson.color}}>{index+1}</span>
         <CardActionArea onClick={()=>play(sample)} className="!flex !min-h-[124px] !items-center !gap-4 !p-5 !text-left">
-         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full font-black text-white" style={{backgroundColor:lesson.color}}>{playing===sample.id?<PauseRounded/>:index+1}</span>
+         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-white" style={{backgroundColor:lesson.color}}>{playing===sample.id?<PauseRounded/>:<PlayArrowRounded/>}</span>
          <div className="min-w-0 flex-1">
           <p dir="rtl" className="arabic-learning break-words text-right text-4xl leading-[1.5] text-[#173f3a] sm:text-5xl"><ColoredArabic sample={sample} color={lesson.color}/></p>
           <div className="mt-2 flex flex-wrap justify-between gap-2"><b className="text-xs" style={{color:lesson.color}}>{sample.reading}</b><span className="text-xs text-blue-950/50">{sample.note}</span></div>

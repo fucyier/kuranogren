@@ -178,9 +178,10 @@ export default function ElifbaLessonScreen({ lesson }: { lesson: ElifbaLesson })
             <p className="text-xs font-black tracking-[.18em] text-orange-700">BOL PRATİK</p>
             <h2 className="mt-2 font-serif text-3xl font-bold">Şimdi sıra sende</h2>
             <p className="mt-2 text-emerald-900/65">Kartlara dokun, dinle ve aynı örneği üç defa sesli oku.</p>
-            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            <div dir="rtl" className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {lesson.practice.map((word,index)=>
-                <Card key={index} elevation={0} className="group !rounded-2xl ring-1 ring-orange-900/10 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg hover:ring-orange-400 active:scale-95">
+                <Card key={index} elevation={0} className="group relative !rounded-2xl ring-1 ring-orange-900/10 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg hover:ring-orange-400 active:scale-95">
+                  <span className="pointer-events-none absolute right-2 top-2 z-10 grid h-6 w-6 place-items-center rounded-full bg-orange-600 text-[11px] font-black text-white shadow-sm">{index+1}</span>
                   <CardActionArea onClick={()=>playLessonAudio("pratik",index,word)} className="!flex !min-h-[132px] !flex-col !items-center !justify-center !gap-2 !p-4 !text-center sm:!min-h-[152px]">
                     <span dir="rtl" className="arabic-learning block w-full break-words text-center leading-snug text-emerald-950 text-4xl sm:text-5xl">{word}</span>
                     <span className="flex items-center gap-1 text-[11px] font-bold text-orange-600 opacity-0 transition-opacity duration-200 group-hover:opacity-100">▶ Dinle</span>
