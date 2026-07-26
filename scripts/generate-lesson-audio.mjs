@@ -1,19 +1,54 @@
 import { mkdir, stat } from "node:fs/promises";
-import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { EdgeTTS } from "node-edge-tts";
 import { elifbaLessons } from "../src/data/elifba-lessons.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const python = "C:\\Users\\caner\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe";
+const onlyDay = process.argv[2] ? Number(process.argv[2]) : null;
 const jobs = [];
 
+// Mukattaa harflerinin tam adları: TTS izole harf+med işaretini seslendiremediği
+// için harfin adını gerçek bir kelime gibi yazıyoruz. "نقص عسلكم" harflerinin
+// (ن ق ص ع س ل ك م) adında med harfi + sakin harf olduğundan doğal olarak uzun
+// okunur; "حي طهر" harfleri (ح ي ط ه ر) kısa med ile, elif ise hiç uzatmadan okunur.
+const MUKATTAA_NAMES = {
+  "ا": "أَلِف",
+  "ح": "حَا",
+  "ي": "يَا",
+  "ط": "طَا",
+  "ه": "هَا",
+  "ر": "رَا",
+  "ن": "نُون",
+  "ق": "قَاف",
+  "ص": "صَاد",
+  "ع": "عَيْن",
+  "س": "سِين",
+  "ل": "لَام",
+  "ك": "كَاف",
+  "م": "مِيم",
+};
+
+// Gün 29: vakf işaretli (ۙ) kelimelerde durakta son harekeyi düşür,
+// mukattaa harflerini (medli/üstü elif işaretli) adlarıyla tek tek okut.
+function prepareVakfMukattaa(text) {
+  const stopped = text.replace(/[ً-ْ]ۙ$/u, "");
+  if (stopped !== text) return stopped;
+  if (/[ٰٓ]/u.test(text)) {
+    const bases = text.match(/[ء-ي]/gu) || [];
+    return bases.map(ch => MUKATTAA_NAMES[ch] || ch).join("، ");
+  }
+  return text;
+}
+
 for (const lesson of elifbaLessons) {
+  if (onlyDay && lesson.day !== onlyDay) continue;
   const folder = path.join(root, "public", "audio", "elifba", "dersler", `gun-${String(lesson.day).padStart(2, "0")}`);
   await mkdir(folder, { recursive: true });
-  const teachingText = text => lesson.day === 24 ? text.replaceAll("ًا", "َنْ") : lesson.day === 25 ? text.replaceAll("ٍ", "ِنْ") : lesson.day === 26 ? text.replaceAll("ٌ", "ُنْ") : text;
-  for (const [index, text] of lesson.examples.entries()) jobs.push({ text:teachingText(text), force:lesson.day>=24&&lesson.day<=26, output: path.join(folder, `ornek-${String(index + 1).padStart(2, "0")}.mp3`) });
-  for (const [index, text] of lesson.practice.entries()) jobs.push({ text:teachingText(text), force:lesson.day>=24&&lesson.day<=26, output: path.join(folder, `pratik-${String(index + 1).padStart(2, "0")}.mp3`) });
+  const teachingText = text => lesson.day === 24 ? text.replaceAll("ًا", "َنْ") : lesson.day === 25 ? text.replaceAll("ٍ", "ِنْ") : lesson.day === 26 ? text.replaceAll("ٌ", "ُنْ") : lesson.day === 29 ? prepareVakfMukattaa(text) : text;
+  const forceFor = text => (lesson.day>=24&&lesson.day<=26) || (lesson.day===29 && /[ٰٓ]/u.test(text));
+  for (const [index, text] of lesson.examples.entries()) jobs.push({ text:teachingText(text), force:forceFor(text), output: path.join(folder, `ornek-${String(index + 1).padStart(2, "0")}.mp3`) });
+  for (const [index, text] of lesson.practice.entries()) jobs.push({ text:teachingText(text), force:forceFor(text), output: path.join(folder, `pratik-${String(index + 1).padStart(2, "0")}.mp3`) });
 }
 
 async function exists(file) {
@@ -22,11 +57,8 @@ async function exists(file) {
 
 async function generate(job) {
   if (!job.force && await exists(job.output)) return;
-  await new Promise((resolve, reject) => {
-    const child = spawn(python, ["-m", "edge_tts", "--voice", "ar-SA-HamedNeural", "--rate=-20%", "--text", job.text, "--write-media", job.output], { stdio: "ignore" });
-    child.on("error", reject);
-    child.on("exit", code => code === 0 ? resolve() : reject(new Error(`Audio generation failed with ${code}`)));
-  });
+  const tts = new EdgeTTS({ voice: "ar-SA-HamedNeural", lang: "ar-SA", rate: "-20%" });
+  await tts.ttsPromise(job.text, job.output);
 }
 
 let cursor = 0;

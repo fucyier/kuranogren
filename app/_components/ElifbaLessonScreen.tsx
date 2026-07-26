@@ -131,16 +131,16 @@ export default function ElifbaLessonScreen({ lesson }: { lesson: ElifbaLesson })
     <AcademyHeader title="30 Günlük Elifba Programı" activeLesson={`Gün ${String(lesson.day).padStart(2, "0")} · ${lesson.shortTitle}`}/>
 
     <div className="mx-auto grid max-w-[1450px] gap-7 px-4 py-7 lg:grid-cols-[320px_minmax(0,1fr)] lg:px-7">
-      <aside className="lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)]">
+      <aside className="order-2 lg:order-none lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)]">
         <div className="rounded-3xl border border-emerald-900/10 bg-white p-4 shadow-sm">
           <div className="mb-4 flex items-center gap-3 px-2"><span className="grid h-10 w-10 place-items-center rounded-xl bg-orange-100 text-orange-700"><MenuBookRounded/></span><div><b className="block text-base">Öğrenme yolun</b><small className="text-emerald-900/55">30 günlük Elifba programı</small></div></div>
-          <nav className="max-h-[calc(100vh-12rem)] space-y-1 overflow-y-auto pr-1">
+          <nav className="max-h-72 space-y-1 overflow-y-auto pr-1 lg:max-h-[calc(100vh-12rem)]">
             {elifbaLessons.map(item=><Link key={item.slug} href={`/${item.slug}`} className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-sm transition ${item.day===lesson.day?"bg-emerald-800 font-bold text-white shadow-md":"hover:bg-emerald-50"}`}><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-black ${completed.includes(item.day)?"bg-orange-400 text-white":item.day===lesson.day?"bg-white/15":"bg-stone-100 text-emerald-800"}`}>{completed.includes(item.day)?"✓":String(item.day).padStart(2,"0")}</span><span className="leading-5">{item.shortTitle}</span></Link>)}
           </nav>
         </div>
       </aside>
 
-      <section className="min-w-0 space-y-6">
+      <section className="order-1 min-w-0 space-y-6 lg:order-none">
         <div className="overflow-hidden rounded-[2rem] bg-emerald-800 text-white shadow-xl shadow-emerald-950/10">
           <div className="grid gap-8 p-7 sm:p-10 xl:grid-cols-[1fr_290px]">
             <div><Chip label={lesson.category.toUpperCase()} className="!bg-amber-200 !font-extrabold !tracking-wider !text-emerald-950"/><p className="mt-6 text-sm font-bold text-emerald-200">GÜN {String(lesson.day).padStart(2,"0")}</p><h1 className="mt-2 font-serif text-4xl font-bold leading-tight sm:text-6xl">{lesson.title}</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-emerald-50">{lesson.summary}</p></div>
