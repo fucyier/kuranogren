@@ -41,14 +41,24 @@ function prepareVakfMukattaa(text) {
   return text;
 }
 
+const forceAll = process.env.FORCE_REGEN === "1";
+
 for (const lesson of elifbaLessons) {
   if (onlyDay && lesson.day !== onlyDay) continue;
   const folder = path.join(root, "public", "audio", "elifba", "dersler", `gun-${String(lesson.day).padStart(2, "0")}`);
   await mkdir(folder, { recursive: true });
   const teachingText = text => lesson.day === 24 ? text.replaceAll("ًا", "َنْ") : lesson.day === 25 ? text.replaceAll("ٍ", "ِنْ") : lesson.day === 26 ? text.replaceAll("ٌ", "ُنْ") : lesson.day === 29 ? prepareVakfMukattaa(text) : text;
   const forceFor = text => (lesson.day>=24&&lesson.day<=26) || (lesson.day===29 && /[ٰٓ]/u.test(text));
-  for (const [index, text] of lesson.examples.entries()) jobs.push({ text:teachingText(text), force:forceFor(text), output: path.join(folder, `ornek-${String(index + 1).padStart(2, "0")}.mp3`) });
-  for (const [index, text] of lesson.practice.entries()) jobs.push({ text:teachingText(text), force:forceFor(text), output: path.join(folder, `pratik-${String(index + 1).padStart(2, "0")}.mp3`) });
+  // UI'de sadece kullanılan sesler üretilir: "letters_with_vowel" modunda örnekler
+  // "harf-XX" olarak, "reading" modunda "ornek-XX" olarak çalınır.
+  if (lesson.mode === "letters_with_vowel") {
+    for (const [index, text] of lesson.examples.entries()) jobs.push({ text:teachingText(text), force:forceFor(text), output: path.join(folder, `harf-${String(index + 1).padStart(2, "0")}.mp3`) });
+  } else if (lesson.mode === "reading") {
+    for (const [index, text] of lesson.examples.entries()) jobs.push({ text:teachingText(text), force:forceFor(text), output: path.join(folder, `ornek-${String(index + 1).padStart(2, "0")}.mp3`) });
+  }
+  if (lesson.day !== 1) {
+    for (const [index, text] of lesson.practice.entries()) jobs.push({ text:teachingText(text), force:forceFor(text), output: path.join(folder, `pratik-${String(index + 1).padStart(2, "0")}.mp3`) });
+  }
 }
 
 async function exists(file) {
@@ -56,8 +66,8 @@ async function exists(file) {
 }
 
 async function generate(job) {
-  if (!job.force && await exists(job.output)) return;
-  const tts = new EdgeTTS({ voice: "ar-SA-HamedNeural", lang: "ar-SA", rate: "-20%" });
+  if (!forceAll && !job.force && await exists(job.output)) return;
+  const tts = new EdgeTTS({ voice: "ar-SA-ZariyahNeural", lang: "ar-SA", rate: "-20%" });
   await tts.ttsPromise(job.text, job.output);
 }
 

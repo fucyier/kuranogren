@@ -1,6 +1,8 @@
 import letters from "@/src/data/elifba.json";
 import { tecvidLessons } from "@/src/data/tecvid-lessons";
 import { namazSureleri } from "@/src/data/namaz-sureleri";
+import { elifbaLessons } from "@/src/data/elifba-lessons";
+import { transliterate } from "@/src/lib/transliterate";
 
 export type QuizQuestion = {
   id: string;
@@ -40,7 +42,7 @@ function buildOptions(correct: string, pool: string[], count = 4): { options: st
 
 function buildHarflerQuestions(): QuizQuestion[] {
   const allNames = letters.map((letter) => letter.name);
-  return shuffle(letters).slice(0, 12).map((letter) => {
+  return shuffle(letters).slice(0, 30).map((letter) => {
     const { options, answerIndex } = buildOptions(letter.name, allNames);
     return {
       id: `harf-${letter.id}`,
@@ -60,7 +62,7 @@ function buildTecvidQuestions(): QuizQuestion[] {
   const pool = tecvidLessons.flatMap((lesson) =>
     [...lesson.examples, ...lesson.practice].map((sample) => ({ lesson, sample }))
   );
-  return shuffle(pool).slice(0, 12).map(({ lesson, sample }) => {
+  return shuffle(pool).slice(0, 30).map(({ lesson, sample }) => {
     const { options, answerIndex } = buildOptions(lesson.shortTitle, allTitles);
     return {
       id: `tecvid-${lesson.slug}-${sample.id}`,
@@ -78,7 +80,7 @@ function buildTecvidQuestions(): QuizQuestion[] {
 function buildSureQuestions(): QuizQuestion[] {
   const allAyahs = namazSureleri.flatMap((sure) => sure.ayahs.map((ayah) => ({ sure, ayah })));
   const allMeanings = allAyahs.map(({ ayah }) => ayah.shortMeaning);
-  return shuffle(allAyahs).slice(0, 12).map(({ sure, ayah }) => {
+  return shuffle(allAyahs).slice(0, 30).map(({ sure, ayah }) => {
     const { options, answerIndex } = buildOptions(ayah.shortMeaning, allMeanings);
     return {
       id: `namaz-${sure.slug}-${ayah.number}`,
@@ -93,6 +95,31 @@ function buildSureQuestions(): QuizQuestion[] {
   });
 }
 
+const ELIFBA_HAREKE_RE = /[ً-ٰٟ]/;
+
+function buildElifbaQuestions(): QuizQuestion[] {
+  const pool = elifbaLessons.flatMap((lesson) =>
+    [...lesson.examples, ...lesson.practice]
+      .filter((sample) => ELIFBA_HAREKE_RE.test(sample))
+      .map((sample, sampleIndex) => ({ lesson, sample, sampleIndex }))
+  );
+  const allReadings = pool.map(({ sample }) => transliterate(sample));
+  return shuffle(pool).slice(0, 30).map(({ lesson, sample, sampleIndex }) => {
+    const correct = transliterate(sample);
+    const { options, answerIndex } = buildOptions(correct, allReadings);
+    return {
+      id: `elifba-${lesson.day}-${sampleIndex}`,
+      arabic: sample,
+      prompt: "Bu kelimenin okunuşu nedir?",
+      options,
+      answerIndex,
+      srsId: `elifba-${lesson.day}-${sampleIndex}`,
+      srsLabel: lesson.shortTitle,
+      srsHref: `/${lesson.slug}`,
+    };
+  });
+}
+
 export const quizTopics: QuizTopic[] = [
   {
     slug: "harfler",
@@ -101,6 +128,14 @@ export const quizTopics: QuizTopic[] = [
     description: "28 Arapça harften rastgele sorularla harfleri hızlıca tanıyabildiğini test et.",
     color: "#174f47",
     build: buildHarflerQuestions,
+  },
+  {
+    slug: "elifba",
+    title: "Elifba Okuma Testi",
+    shortTitle: "Elifba",
+    description: "30 günlük Elifba programındaki kelimelerin doğru okunuşunu (Latince) seç.",
+    color: "#a3760a",
+    build: buildElifbaQuestions,
   },
   {
     slug: "tecvid-kurallari",

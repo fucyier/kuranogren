@@ -14,6 +14,7 @@ import { getElifbaSources, getElifbaTheory } from "@/src/data/elifba-theory";
 import letters from "@/src/data/elifba.json";
 import AcademyHeader from "@/app/_components/AcademyHeader";
 import { logActivity, scheduleReview } from "@/src/lib/progress";
+import { transliterateWord } from "@/src/lib/transliterate";
 
 type Letter = (typeof letters)[number];
 const nonJoining = new Set(["elif", "dal", "zel", "ra", "ze", "vav"]);
@@ -45,9 +46,17 @@ function forms(letter: Letter) {
 export default function ElifbaLessonScreen({ lesson }: { lesson: ElifbaLesson }) {
   const [message,setMessage] = useState("Dinlemek istediğin karta dokun.");
   const [completed,setCompleted] = useState<number[]>([]);
+  const [activePractice,setActivePractice] = useState<number|null>(null);
   const [selectedLetter,setSelectedLetter] = useState<Letter>(letters[0]);
   const [letterDialogOpen,setLetterDialogOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const activePracticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function showPracticeTranslit(index:number) {
+    setActivePractice(index);
+    if (activePracticeTimer.current) clearTimeout(activePracticeTimer.current);
+    activePracticeTimer.current = setTimeout(()=>setActivePractice(null),2500);
+  }
   const currentIndex = lesson.day - 1;
   const previous = elifbaLessons[currentIndex - 1];
   const next = elifbaLessons[currentIndex + 1];
@@ -55,6 +64,7 @@ export default function ElifbaLessonScreen({ lesson }: { lesson: ElifbaLesson })
   const sources = getElifbaSources(lesson.day);
 
   useEffect(()=>{const saved=localStorage.getItem("elifba-30-progress");if(saved)setCompleted(JSON.parse(saved))},[]);
+  useEffect(()=>()=>{if(activePracticeTimer.current)clearTimeout(activePracticeTimer.current)},[]);
 
   function speak(text:string,label=text) {
     setMessage(`${label} okunuyor…`);
@@ -179,15 +189,28 @@ export default function ElifbaLessonScreen({ lesson }: { lesson: ElifbaLesson })
             <h2 className="mt-2 font-serif text-3xl font-bold">Şimdi sıra sende</h2>
             <p className="mt-2 text-emerald-900/65">Kartlara dokun, dinle ve aynı örneği üç defa sesli oku.</p>
             <div dir="rtl" className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-              {lesson.practice.map((word,index)=>
-                <Card key={index} elevation={0} className="group relative !rounded-2xl ring-1 ring-orange-900/10 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg hover:ring-orange-400 active:scale-95">
-                  <span className="pointer-events-none absolute right-2 top-2 z-10 grid h-6 w-6 place-items-center rounded-full bg-orange-600 text-[11px] font-black text-white shadow-sm">{index+1}</span>
-                  <CardActionArea onClick={()=>playLessonAudio("pratik",index,word)} className="!flex !min-h-[132px] !flex-col !items-center !justify-center !gap-2 !p-4 !text-center sm:!min-h-[152px]">
-                    <span dir="rtl" className="arabic-learning block w-full break-words text-center leading-snug text-emerald-950 text-4xl sm:text-5xl">{word}</span>
-                    <span className="flex items-center gap-1 text-[11px] font-bold text-orange-600 opacity-0 transition-opacity duration-200 group-hover:opacity-100">▶ Dinle</span>
-                  </CardActionArea>
-                </Card>
-              )}
+              {lesson.practice.map((word,index)=>{
+                const latinParts = transliterateWord(word);
+                return (
+                <div key={index} className="group relative">
+                  <Card elevation={0} className="!rounded-2xl ring-1 ring-orange-900/10 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg hover:ring-orange-400 active:scale-95">
+                    <span className="pointer-events-none absolute right-2 top-2 z-10 grid h-6 w-6 place-items-center rounded-full bg-orange-600 text-[11px] font-black text-white shadow-sm">{index+1}</span>
+                    <CardActionArea onClick={()=>{playLessonAudio("pratik",index,word);showPracticeTranslit(index);}} className="!flex !min-h-[132px] !flex-col !items-center !justify-center !gap-2 !p-4 !text-center sm:!min-h-[152px]">
+                      <span dir="rtl" className="arabic-learning block w-full break-words text-center leading-snug text-emerald-950 text-4xl sm:text-5xl">{word}</span>
+                      <span className="flex items-center gap-1 text-[11px] font-bold text-orange-600 opacity-0 transition-opacity duration-200 group-hover:opacity-100">▶ Dinle</span>
+                    </CardActionArea>
+                  </Card>
+                  {/* Fare ile üstüne gelince (hover), dokunmatik cihazda karta dokununca (activePractice) görünür. */}
+                  <div className={`pointer-events-none absolute inset-x-0 top-full z-20 mt-1.5 flex scale-95 justify-center opacity-0 transition-all duration-150 group-hover:scale-100 group-hover:opacity-100 ${activePractice===index?"!scale-100 !opacity-100":""}`}>
+                    <span className="max-w-[90vw] whitespace-nowrap rounded-xl bg-emerald-900 px-3 py-1.5 text-center shadow-lg shadow-emerald-950/20">
+                      {latinParts.map((part,i)=>
+                        <span key={i} className={`text-sm font-bold text-white ${part.thick?"underline decoration-amber-300 decoration-2 underline-offset-[3px]":""} ${part.peltek?"italic text-amber-200":""}`}>{part.text}</span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+                );
+              })}
             </div>
           </div>
         )}
