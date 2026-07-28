@@ -59,6 +59,7 @@ export default function HomeClient() {
           <div className="actions">
             <a className="primary" href="/elifba">Elifba Dersi <b>→</b></a>
             <a className="primary" href="/tecvid">Tecvid Dersi <b>→</b></a>
+            <a className="primary" href="/tefsir">Tefsir Dersi <b>→</b></a>
           </div>
           <div className="hero-stats">
             <b>30</b><span>Elifba dersi</span><i></i><b>10</b><span>Tecvid dersi seni bekliyor</span>

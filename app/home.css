@@ -3,6 +3,12 @@
   gap: 16px;
 }
 
+.hero-copy .actions .primary {
+  gap: 12px;
+  padding-inline: 16px;
+  white-space: nowrap;
+}
+
 .course-link {
   display: inline-flex;
   align-items: center;

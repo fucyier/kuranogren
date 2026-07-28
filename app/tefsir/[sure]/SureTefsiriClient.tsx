@@ -15,7 +15,7 @@ export default function SureTefsiriClient({ sure, note }: { sure: NamazSuresi; n
 
   return (
     <main className="min-h-screen bg-[#f7f3ec] text-[#183f3a]">
-      <AcademyHeader title="Tefsir" />
+      <AcademyHeader title="Namaz Sureleri Tefsiri" />
       <section className="mx-auto max-w-4xl space-y-6 px-5 py-8 sm:px-8">
         <Link href="/tefsir" className="inline-flex items-center gap-2 font-extrabold text-[#244a70]">
           <ArrowBackRounded /> Tefsir listesi

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-export const SITE_NAME = "Kur'an Öğren";
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://kuranogren.com").replace(/\/$/, "");
+export const SITE_NAME = "Kuran Öğren";
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://kuranogren.net").replace(/\/$/, "");
 export const DEFAULT_DESCRIPTION = "Elifba, tecvid ve namaz surelerini sesli örnekler, ayrıntılı anlatımlar ve bol pratikle adım adım öğrenin.";
 
 export function absoluteUrl(path = "/") {
