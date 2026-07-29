@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import ScrollToTopFab from "@/app/_components/ScrollToTopFab";
+import ServiceWorkerRegister from "@/app/_components/ServiceWorkerRegister";
 import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/seo";
 import "./globals.css";
 import "./child.css";
@@ -14,7 +15,16 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",
-    apple: "/icon.svg",
+    apple: "/pwa/apple-touch-icon.png",
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: "default",
+  },
+  other: {
+    "apple-mobile-web-app-capable": "yes",
   },
   applicationName: SITE_NAME,
   authors: [{ name: SITE_NAME, url: SITE_URL }],
@@ -33,6 +43,11 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#17594f",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -54,6 +69,7 @@ export default function RootLayout({
     <html lang="tr">
       <body>
         {children}
+        <ServiceWorkerRegister />
         <ScrollToTopFab />
         <script
           type="application/ld+json"
